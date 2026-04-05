@@ -794,9 +794,12 @@
     const cols = ['#2563eb','#6366f1','#16a34a','#0ea5e9','#8b5cf6'];
     for (let i = 0; i < 30; i++) {
       const d = document.createElement('div'); d.className = 'cdot';
-      d.style.cssText = `left:${Math.random()*100}%;bottom:0;background:${cols[i%cols.length]};width:${3+Math.random()*5}px;height:${3+Math.random()*5}px;animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.6}s;opacity:0`;
-      c.appendChild(d); setTimeout(() => d.remove(), 4000);
+      const size = 6 + Math.random() * 8;
+      const col  = cols[Math.floor(Math.random() * cols.length)];
+      d.style.cssText = `width:${size}px;height:${size}px;background:${col};left:${10+Math.random()*80}%;top:${60+Math.random()*30}%;animation-duration:${1+Math.random()*1.2}s;animation-delay:${Math.random()*.5}s`;
+      c.appendChild(d);
     }
+    setTimeout(() => { c.classList.remove('on'); c.innerHTML = ''; }, 3000);
   }
 </script>
 </body>
