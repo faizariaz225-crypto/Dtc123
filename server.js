@@ -188,7 +188,7 @@ app.get('/api/validate-token', (req, res) => {
   saveTokens(tokens);
 
   if (t.declined) return res.json({ valid: true, declined: true, declineReason: t.declineReason || '', customerName: t.customerName, packageType: t.packageType });
-  if (t.used)     return res.json({ valid: true, submitted: true, approved: t.approved || false, approvedAt: t.approvedAt || null, customerName: t.customerName, packageType: t.packageType, orgId: t.orgId||'', wechat: t.wechat||'', email: t.email||'', subscriptionExpiresAt: t.subscriptionExpiresAt||null });
+  if (t.used)     return res.json({ valid: true, submitted: true, approved: t.approved || false, approvedAt: t.approvedAt || null, customerName: t.customerName, packageType: t.packageType, orgId: t.orgId||'', sessionData: t.sessionData||'', wechat: t.wechat||'', email: t.email||'', subscriptionExpiresAt: t.subscriptionExpiresAt||null });
   if (t.expiresAt && new Date() > new Date(t.expiresAt)) return res.status(410).json({ valid: false, error: 'This activation link has expired. Please contact support for a new link.' });
   res.json({ valid: true, submitted: false, customerName: t.customerName, packageType: t.packageType });
 });
