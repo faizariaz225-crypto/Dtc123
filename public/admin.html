@@ -507,7 +507,19 @@ function renderDash() {
   const rows = filtered.map(([token,t,status])=>{
     const subSt = getSubStatus(t);
     const rowCls = subSt==='soon'||subSt==='danger'?'row-expiring':subSt==='expired'?'row-expired-sub':status==='declined'?'row-declined':'';
-    const org = t.orgId ? `<div class="orgid-wrap"><span class="orgid-txt">${esc(t.orgId)}</span><button class="icopy" onclick="copyText('${esc(t.orgId)}',this)">Copy</button></div>` : '<span style="color:var(--muted2);font-size:.65rem">Not submitted</span>';
+    const isChatGPTPkg = (t.packageType||'').toLowerCase().includes('chatgpt');
+    let org;
+    if (isChatGPTPkg) {
+      if (t.sessionData) {
+        const sdPreview = t.sessionData.slice(0,40)+'…';
+        const sdSafe = t.sessionData.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        org = `<div class="orgid-wrap"><span class="orgid-txt" title="ChatGPT session data">${esc(sdPreview)}</span><button class="icopy" onclick="copyText('${sdSafe}',this)">Copy</button></div>`;
+      } else {
+        org = '<span style="color:var(--muted2);font-size:.65rem">Not submitted</span>';
+      }
+    } else {
+      org = t.orgId ? `<div class="orgid-wrap"><span class="orgid-txt">${esc(t.orgId)}</span><button class="icopy" onclick="copyText('${esc(t.orgId)}',this)">Copy</button></div>` : '<span style="color:var(--muted2);font-size:.65rem">Not submitted</span>';
+    }
 
     // Sub expiry
     let subCell='<span style="color:var(--muted2);font-size:.65rem">—</span>';
@@ -555,7 +567,7 @@ function renderDash() {
     </tr>`;
   }).join('');
 
-  wrap.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Customer</th><th>Status</th><th>Organization ID</th><th>Timeline</th><th>Subscription</th><th>WeChat</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  wrap.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Customer</th><th>Status</th><th>Org ID / Session</th><th>Timeline</th><th>Subscription</th><th>WeChat</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 // ── Approve ───────────────────────────────────────────────────────────────────
@@ -613,6 +625,7 @@ function renderCustomers() {
 
   wrap.innerHTML=filtered.map(([token,t])=>{
     const subSt=getSubStatus(t);
+    const isChatGPTPkg=(t.packageType||'').toLowerCase().includes('chatgpt');
     const days=t.subscriptionExpiresAt?daysUntil(t.subscriptionExpiresAt):null;
     const cardCls='cust-card'+(subSt==='soon'||subSt==='danger'?' expiring':subSt==='expired'?' expired-sub':'');
     const total=t.subscriptionDays||30;
@@ -626,7 +639,7 @@ function renderCustomers() {
       <div class="cust-grid">
         <div><div class="cf-lbl">Email</div><div class="cf-val">${esc(t.email||'—')}</div></div>
         <div><div class="cf-lbl">WeChat</div><div class="cf-val">${esc(t.wechat||'—')}</div></div>
-        <div><div class="cf-lbl">Organization ID</div><div style="display:flex;align-items:flex-start;gap:.3rem"><div class="cf-val" style="flex:1">${esc((t.orgId||'—').slice(0,22))}…</div>${t.orgId?`<button class="icopy btn-sm" onclick="copyText('${esc(t.orgId)}',this)">Copy</button>`:''}</div></div>
+        <div><div class="cf-lbl">${isChatGPTPkg ? 'Session Data' : 'Organization ID'}</div><div style="display:flex;align-items:flex-start;gap:.3rem"><div class="cf-val" style="flex:1">${isChatGPTPkg ? (t.sessionData ? esc(t.sessionData.slice(0,22))+'…' : '—') : esc((t.orgId||'—').slice(0,22))+'…'}</div>${isChatGPTPkg ? (t.sessionData ? `<button class="icopy btn-sm" onclick="copyText('${t.sessionData.replace(/'/g,\"\\'\")}',this)">Copy</button>` : '') : (t.orgId ? `<button class="icopy btn-sm" onclick="copyText('${esc(t.orgId)}',this)">Copy</button>` : '')}</div></div>
         <div><div class="cf-lbl">Activated On</div><div class="cf-val">${t.approvedAt?new Date(t.approvedAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'}</div></div>
         <div><div class="cf-lbl">Expires On</div><div class="cf-val ${dCls}">${expDate}</div></div>
         <div><div class="cf-lbl">Days Remaining</div><div class="cf-val ${dCls}">${days===null?'—':days<=0?'Expired':days+' days'}</div></div>
