@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_KEY      = process.env.ADMIN_KEY || 'dtc2024';
+const ADMIN_KEY      = process.env.ADMIN_KEY || 'quickplus2024'; // Change this or set ADMIN_KEY env variable
 const DATA_DIR       = path.join(__dirname, 'data');
 const TOKENS_FILE    = path.join(DATA_DIR, 'tokens.json');
 const SESSIONS_FILE  = path.join(DATA_DIR, 'sessions.txt');
